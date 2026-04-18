@@ -1,4 +1,4 @@
-// Telegram Bot webhook — @Goldberg2bot
+// Telegram Bot webhook — @Goldberg2bot · Иврит для русскоязычных
 const TOKEN = process.env.BOT_TOKEN;
 const APP_URL = process.env.APP_URL || 'https://goldberg2-habits.vercel.app';
 const HEBREW_URL = APP_URL;
@@ -17,39 +17,85 @@ export default async function handler(req, res) {
 
   if (u.message?.text) {
     const chat_id = u.message.chat.id;
+    const first = u.message.from?.first_name || 'друг';
     const cmd = u.message.text.split(' ')[0];
 
-    if (cmd === '/start' || cmd === '/hebrew' || cmd === '/learn') {
+    if (cmd === '/start' || cmd === '/hebrew' || cmd === '/ivrit' || cmd === '/learn') {
       await tg('sendMessage', {
         chat_id,
-        text: '🇮🇱 *Hebrew · Learning*\n\nSpeak · Listen · Read · Grammar. Tap below to open.',
+        text: `שָׁלוֹם, ${first}!\n\n*Иврит · для русскоязычных*\n\nГоворение · Аудирование · Чтение · Грамматика · Алефбет.\nA1 — с нуля до уверенных фраз.`,
         parse_mode: 'Markdown',
         reply_markup: {
-          inline_keyboard: [[{ text: '🇮🇱 Open Hebrew', web_app: { url: HEBREW_URL } }]]
+          inline_keyboard: [
+            [{ text: '🇮🇱 Открыть Иврит', web_app: { url: HEBREW_URL } }],
+            [{ text: '⭐ Иврит PRO (150 ⭐)', callback_data: 'pro' }, { text: '👥 Позвать друга', switch_inline_query: `Учу иврит через @Goldberg2bot — присоединяйся!` }]
+          ]
         }
       });
     } else if (cmd === '/gallery') {
       await tg('sendMessage', {
         chat_id,
-        text: '🎨 *App gallery*\n\nAll versions preserved. Pick any design.',
+        text: '🎨 *Галерея дизайнов*\n\nВсе версии приложения.',
         parse_mode: 'Markdown',
         reply_markup: {
-          inline_keyboard: [[{ text: '🎨 Open gallery', web_app: { url: APP_URL } }]]
+          inline_keyboard: [[{ text: '🎨 Открыть галерею', web_app: { url: APP_URL + '/gallery' } }]]
         }
+      });
+    } else if (cmd === '/help') {
+      await tg('sendMessage', {
+        chat_id,
+        text: '*Команды*\n\n/start — открыть приложение\n/hebrew — то же самое\n/pro — разблокировать PRO\n/streak — твоя серия\n/gallery — галерея версий\n/reset — сбросить прогресс',
+        parse_mode: 'Markdown'
+      });
+    } else if (cmd === '/streak') {
+      await tg('sendMessage', {
+        chat_id,
+        text: '🔥 Проверь свою серию в приложении.',
+        reply_markup: { inline_keyboard: [[{ text: '🇮🇱 Открыть', web_app: { url: HEBREW_URL } }]] }
       });
     } else if (cmd === '/pro') {
       const inv = await tg('createInvoiceLink', {
-        title: 'Hebrew Pro',
-        description: 'All levels (A1→C2), offline packs, native-speaker audio',
+        title: 'Иврит PRO',
+        description: 'Все уровни (A1→C2) · офлайн-пакеты · озвучка носителя · без рекламы',
         payload: `hebrew_pro_${u.message.from.id}_${Date.now()}`,
         currency: 'XTR',
-        prices: [{ label: 'Hebrew Pro (lifetime)', amount: 150 }]
+        prices: [{ label: 'Иврит PRO (навсегда)', amount: 150 }]
       });
       if (inv?.ok) {
         await tg('sendMessage', {
           chat_id,
-          text: 'Unlock Hebrew Pro — 150 ⭐',
-          reply_markup: { inline_keyboard: [[{ text: '⭐ Pay 150 Stars', url: inv.result }]] }
+          text: '⭐ *Иврит PRO*\n\nВсе уровни · офлайн · озвучка носителя.\n150 ⭐ — навсегда.',
+          parse_mode: 'Markdown',
+          reply_markup: { inline_keyboard: [[{ text: '⭐ Купить за 150 Stars', url: inv.result }]] }
+        });
+      }
+    } else if (cmd === '/reset') {
+      await tg('sendMessage', {
+        chat_id,
+        text: 'Чтобы сбросить прогресс, откройте приложение → Профиль → Сбросить.',
+        reply_markup: { inline_keyboard: [[{ text: '🇮🇱 Открыть', web_app: { url: HEBREW_URL } }]] }
+      });
+    }
+  }
+
+  if (u.callback_query) {
+    const cb = u.callback_query;
+    const chat_id = cb.message?.chat?.id;
+    await tg('answerCallbackQuery', { callback_query_id: cb.id });
+    if (cb.data === 'pro' && chat_id) {
+      const inv = await tg('createInvoiceLink', {
+        title: 'Иврит PRO',
+        description: 'Все уровни · офлайн · озвучка носителя',
+        payload: `hebrew_pro_${cb.from.id}_${Date.now()}`,
+        currency: 'XTR',
+        prices: [{ label: 'Иврит PRO (навсегда)', amount: 150 }]
+      });
+      if (inv?.ok) {
+        await tg('sendMessage', {
+          chat_id,
+          text: '⭐ *Иврит PRO* — 150 ⭐',
+          parse_mode: 'Markdown',
+          reply_markup: { inline_keyboard: [[{ text: '⭐ Купить', url: inv.result }]] }
         });
       }
     }
@@ -59,17 +105,20 @@ export default async function handler(req, res) {
     const chat_id = u.message.chat.id;
     try {
       const d = JSON.parse(u.message.web_app_data.data || '{}');
-      if (d.event === 'collection_complete') {
-        await tg('sendMessage', {
-          chat_id,
-          text: `✅ *${d.collection}* — ${d.words} words learned.\n_Logged to your vocabulary._`,
-          parse_mode: 'Markdown'
-        });
-      } else if (d.event === 'session_complete') {
+      if (d.event === 'session_complete') {
         const mins = Math.round((d.duration || 0) / 60);
         await tg('sendMessage', {
           chat_id,
-          text: `✅ ${d.mode || 'Session'} · ${mins} min`
+          text: `✅ Урок пройден · ${d.mode || 'сессия'} · ${mins} мин 🔥`
+        });
+      } else if (d.event === 'xp') {
+        // silent — don't spam
+      } else if (d.event === 'pro_intent') {
+        // noop
+      } else if (d.event === 'enable_reminders') {
+        await tg('sendMessage', {
+          chat_id,
+          text: '🔔 Напоминания включены. Буду стучаться каждый день в удобное время.'
         });
       }
     } catch {}
@@ -86,10 +135,10 @@ export default async function handler(req, res) {
     const chat_id = u.message.chat.id;
     await tg('sendMessage', {
       chat_id,
-      text: '⭐ *Hebrew Pro unlocked.* All levels + offline packs are yours.',
+      text: '⭐ *Иврит PRO активирован!*\nВсе уровни и офлайн-пакеты разблокированы.',
       parse_mode: 'Markdown',
       reply_markup: {
-        inline_keyboard: [[{ text: '🇮🇱 Open Hebrew', web_app: { url: HEBREW_URL } }]]
+        inline_keyboard: [[{ text: '🇮🇱 Открыть', web_app: { url: HEBREW_URL } }]]
       }
     });
   }
