@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#000000" />
+<title>Brain — ADHD focus companion</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  :root{--bg:#000;--ink:#f4f4f4;--muted:#888;--card:rgba(255,255,255,.06);--line:rgba(255,255,255,.1);--accent:#c6ff3a}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  body{min-height:100dvh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+  .app{max-width:430px;margin:0 auto;padding:24px 22px 40px;position:relative}
+  .pill{display:inline-flex;align-items:center;height:30px;padding:0 14px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:13px;color:var(--ink)}
+  .greeting{font-size:32px;font-weight:300;letter-spacing:-.5px;margin:20px 0 6px;line-height:1.1}
+  .sub{font-size:15px;color:var(--muted);margin-bottom:30px}
+  .orb{width:280px;height:280px;margin:30px auto 40px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(198,255,58,.4),rgba(198,255,58,.05) 60%,transparent 80%);filter:blur(20px);animation:breathe 6s ease-in-out infinite}
+  @keyframes breathe{0%,100%{transform:scale(.95);opacity:.7}50%{transform:scale(1.1);opacity:1}}
+  .modes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:30px}
+  .mode{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;cursor:pointer;transition:background .2s;text-align:left}
+  .mode:active{background:rgba(255,255,255,.1)}
+  .mode .emoji{font-size:26px;margin-bottom:10px;display:block}
+  .mode .mname{font-size:16px;font-weight:500;letter-spacing:-.2px}
+  .mode .mguide{font-size:12px;color:var(--muted);margin-top:2px}
+  .mode.pro{border-color:rgba(198,255,58,.3)}
+  .mode.pro .lock{position:absolute;top:12px;right:12px;font-size:11px;color:var(--accent)}
+  .mode{position:relative}
+  .session{position:fixed;inset:0;background:#000;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:50;padding:40px}
+  .session.on{display:flex}
+  .session .sorb{width:260px;height:260px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(198,255,58,.5),rgba(198,255,58,.08) 55%,transparent 80%);filter:blur(16px);animation:breathe 8s ease-in-out infinite;margin-bottom:32px}
+  .session .stimer{font-size:56px;font-weight:200;color:var(--accent);letter-spacing:-2px;font-variant-numeric:tabular-nums}
+  .session .smode{font-size:16px;color:var(--muted);margin-top:6px;letter-spacing:.3px;text-transform:uppercase}
+  .session .sstop{margin-top:50px;padding:16px 30px;border-radius:999px;background:var(--card);border:1px solid var(--line);color:var(--ink);font-size:15px;font-family:inherit;cursor:pointer}
+  .vital{display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line);font-size:15px}
+  .vital .v{color:var(--muted)}
+  h2{font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:30px 0 14px;font-weight:500}
+</style></head>
+<body>
+<div class="app">
+  <span class="pill" id="pillName">Your brain</span>
+  <div class="greeting" id="greet">Hi, let's focus.</div>
+  <div class="sub">Pick a scenario tuned for your state right now.</div>
+  <div class="orb"></div>
+  <h2>Focus modes</h2>
+  <div class="modes">
+    <button class="mode" data-m="hyperfocus" data-f="196" data-l="0.12"><span class="emoji">🎯</span><div class="mname">Hyperfocus</div><div class="mguide">25 min · deep work</div></button>
+    <button class="mode" data-m="body double" data-f="220" data-l="0.3"><span class="emoji">👥</span><div class="mname">Body Double</div><div class="mguide">co-working presence</div></button>
+    <button class="mode" data-m="unfreeze" data-f="165" data-l="0.6"><span class="emoji">❄️</span><div class="mname">Unfreeze</div><div class="mguide">break task paralysis</div></button>
+    <button class="mode" data-m="dopamine" data-f="262" data-l="1.0"><span class="emoji">✨</span><div class="mname">Dopamine</div><div class="mguide">quick reward loop</div></button>
+    <button class="mode" data-m="calm" data-f="147" data-l="0.18"><span class="emoji">🌊</span><div class="mname">Calm Down</div><div class="mguide">after overwhelm</div></button>
+    <button class="mode pro" data-m="brainstorm" data-f="247" data-l="0.5"><span class="lock">Pro ⭐</span><span class="emoji">🧠</span><div class="mname">Brainstorm</div><div class="mguide">divergent thinking</div></button>
+    <button class="mode" data-m="journal" data-f="110" data-l="0.1"><span class="emoji">📓</span><div class="mname">Journal</div><div class="mguide">biometric-gated</div></button>
+    <button class="mode pro" data-m="bedtime" data-f="98" data-l="0.08"><span class="lock">Pro ⭐</span><span class="emoji">🌙</span><div class="mname">Bedtime</div><div class="mguide">soundscape · 45 min</div></button>
+  </div>
+  <h2>Vitals</h2>
+  <div class="vital"><span>Sleep last night</span><span class="v">7h 12m</span></div>
+  <div class="vital"><span>Focus minutes today</span><span class="v" id="focusMin">0</span></div>
+  <div class="vital"><span>Current streak</span><span class="v">3 days</span></div>
+</div>
+<div class="session" id="session">
+  <div class="sorb"></div>
+  <div class="stimer" id="timer">25:00</div>
+  <div class="smode" id="sessMode"></div>
+  <button class="sstop" id="stopBtn">End session</button>
+</div>
+<script>
+  const tg = window.Telegram?.WebApp; tg?.ready(); tg?.expand(); tg?.setHeaderColor?.('#000'); tg?.setBackgroundColor?.('#000');
+  const u = tg?.initDataUnsafe?.user;
+  if (u?.first_name){ document.getElementById('pillName').textContent = u.first_name + "'s brain"; document.getElementById('greet').textContent = `Hi ${u.first_name}, let's focus.`; }
+  let audio, osc, lfo, gain, timer, remaining=1500;
+  function startTone(f, l){ try{ audio=new(window.AudioContext||window.webkitAudioContext)(); osc=audio.createOscillator(); osc.type='sine'; osc.frequency.value=f; gain=audio.createGain(); gain.gain.value=.04; lfo=audio.createOscillator(); lfo.type='sine'; lfo.frequency.value=l; const lg=audio.createGain(); lg.gain.value=6; lfo.connect(lg); lg.connect(osc.frequency); osc.connect(gain); gain.connect(audio.destination); osc.start(); lfo.start(); }catch{} }
+  function stopTone(){ try{ osc?.stop(); lfo?.stop(); audio?.close(); }catch{} }
+  document.querySelectorAll('.mode').forEach(m => m.addEventListener('click', () => {
+    if (m.classList.contains('pro')){ tg?.showPopup?.({title:'Brain Pro',message:'Unlock all modes for 150 ⭐',buttons:[{id:'buy',text:'Buy',type:'default'},{id:'c',type:'cancel'}]}); return; }
+    const name = m.dataset.m, f = Number(m.dataset.f), l = Number(m.dataset.l);
+    document.getElementById('sessMode').textContent = name;
+    document.getElementById('session').classList.add('on');
+    remaining = 1500; tick(); timer = setInterval(tick, 1000);
+    startTone(f, l); tg?.HapticFeedback?.impactOccurred?.('medium'); tg?.BackButton?.show?.();
+  }));
+  function tick(){
+    const m = String(Math.floor(remaining/60)).padStart(2,'0'), s = String(remaining%60).padStart(2,'0');
+    document.getElementById('timer').textContent = `${m}:${s}`;
+    if (remaining-- <= 0){ endSession(); }
+  }
+  function endSession(){
+    clearInterval(timer); stopTone();
+    document.getElementById('session').classList.remove('on');
+    tg?.HapticFeedback?.notificationOccurred?.('success'); tg?.BackButton?.hide?.();
+    const mins = Math.round((1500-remaining)/60);
+    document.getElementById('focusMin').textContent = mins;
+  }
+  document.getElementById('stopBtn').addEventListener('click', endSession);
+  tg?.BackButton?.onClick?.(endSession);
+</script></body></html>

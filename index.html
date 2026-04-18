@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0a0a" />
+<title>Goldberg Apps — gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  :root{--bg:#0a0a0b;--ink:#f4f4f4;--muted:#8e8e93;--card:#151518;--line:rgba(255,255,255,.08);--accent:#c6ff3a}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Geist',-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  body{min-height:100dvh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+  .app{max-width:480px;margin:0 auto;padding:40px 22px 40px}
+  .bri{font-family:'Bricolage Grotesque',system-ui,sans-serif}
+  .head{margin-bottom:28px}
+  .kicker{font-size:12px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase;margin-bottom:10px}
+  h1{font-family:'Bricolage Grotesque',system-ui;font-size:36px;font-weight:600;letter-spacing:-1.2px;margin:0 0 8px;line-height:1}
+  .sub{color:var(--muted);font-size:15px;line-height:1.45}
+  .default-banner{background:rgba(198,255,58,.08);border:1px solid rgba(198,255,58,.2);border-radius:14px;padding:12px 14px;margin:18px 0 22px;font-size:13px;display:flex;align-items:center;gap:10px;color:var(--accent)}
+  .default-banner button{margin-left:auto;background:transparent;border:1px solid rgba(198,255,58,.4);color:var(--accent);font-family:inherit;font-size:12px;padding:6px 12px;border-radius:999px;cursor:pointer}
+  .versions{display:flex;flex-direction:column;gap:14px}
+  .ver{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;cursor:pointer;transition:transform .15s,background .2s}
+  .ver:active{transform:scale(.985)}
+  .ver.active{border-color:rgba(198,255,58,.35);background:rgba(198,255,58,.04)}
+  .preview{height:150px;border-radius:14px;margin-bottom:14px;overflow:hidden;position:relative;background:#000}
+  .preview .tag{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.6);backdrop-filter:blur(12px);color:#fff;font-size:10px;padding:4px 9px;border-radius:999px;letter-spacing:.08em;text-transform:uppercase}
+  .vrow{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
+  .vname{font-family:'Bricolage Grotesque',system-ui;font-size:22px;font-weight:600;letter-spacing:-.5px;line-height:1}
+  .vdate{color:var(--muted);font-size:12px;flex-shrink:0;padding-top:4px}
+  .vdesc{color:var(--muted);font-size:13px;line-height:1.45;margin-bottom:14px}
+  .vactions{display:flex;gap:8px}
+  .vbtn{flex:1;height:40px;border-radius:12px;border:0;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+  .vbtn.primary{background:var(--accent);color:#000}
+  .vbtn.ghost{background:rgba(255,255,255,.06);color:var(--ink);border:1px solid var(--line)}
+  .vbtn.active{background:#222;color:var(--accent);border:1px solid rgba(198,255,58,.3)}
+  .footer{margin-top:40px;padding-top:24px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;line-height:1.5}
+  .footer a{color:var(--accent);text-decoration:none}
+
+  /* Mini previews (so user can see each design at a glance) */
+  .p-lexa{background:radial-gradient(800px 400px at 50% 30%,#f3f2ed,#d5d2ca);display:flex;align-items:center;justify-content:center}
+  .p-lexa .stack{display:flex;flex-direction:column;gap:4px;width:72%}
+  .p-lexa .s{height:22px;border-radius:6px}
+  .p-abc{background:#fff;padding:14px;display:flex;flex-direction:column;gap:5px}
+  .p-abc .b{flex:1;border-radius:8px;min-height:22px}
+  .p-fitness{background:#000;padding:14px;color:#fff;font-family:-apple-system}
+  .p-fitness .ft{font-size:14px;font-weight:700;margin-bottom:6px}
+  .p-fitness .rings{display:flex;gap:12px;align-items:center;margin-top:6px}
+  .p-fitness .ring{width:48px;height:48px;border-radius:50%;border:6px solid}
+  .p-brain{background:#000;display:flex;align-items:center;justify-content:center;position:relative}
+  .p-brain::after{content:'';position:absolute;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(198,255,58,.4),rgba(198,255,58,.05) 60%,transparent 80%);filter:blur(16px)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="head">
+    <div class="kicker">Your app gallery</div>
+    <h1>All versions</h1>
+    <div class="sub">Every design we've built, saved as its own stable URL. Tap <b>Open</b> to run a version, or <b>Set as default</b> to make the bot menu button launch that one.</div>
+  </div>
+
+  <div id="defaultBanner" class="default-banner" style="display:none">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <span><b id="defaultName"></b> is your current default</span>
+    <button id="clearDefault">Clear</button>
+  </div>
+
+  <div class="versions" id="versions"></div>
+
+  <div class="footer">
+    Source: <a href="https://github.com/iarigoldberg/goldberg-apps" id="ghLink">github.com/iarigoldberg/goldberg-apps</a><br>
+    Deployed on Vercel · Each version has its own stable URL so nothing gets lost.
+  </div>
+</div>
+
+<script>
+  const tg = window.Telegram?.WebApp;
+  tg?.ready(); tg?.expand();
+  tg?.setHeaderColor?.('#0a0a0b'); tg?.setBackgroundColor?.('#0a0a0b');
+  if (tg?.isVersionAtLeast?.('7.10')) tg.setBottomBarColor?.('#0a0a0b');
+  const H = { tap:()=>tg?.HapticFeedback?.selectionChanged?.(), ok:()=>tg?.HapticFeedback?.notificationOccurred?.('success'), light:()=>tg?.HapticFeedback?.impactOccurred?.('light') };
+
+  const cloud = {
+    get:k=>new Promise(r=>{tg?.CloudStorage?.getItem?(tg.CloudStorage.getItem(k,(_,v)=>r(v??localStorage.getItem(k)))):r(localStorage.getItem(k))}),
+    set:(k,v)=>new Promise(r=>{localStorage.setItem(k,v);tg?.CloudStorage?.setItem?tg.CloudStorage.setItem(k,v,()=>r()):r()}),
+    del:k=>new Promise(r=>{localStorage.removeItem(k);tg?.CloudStorage?.removeItem?tg.CloudStorage.removeItem(k,()=>r()):r()})
+  };
+
+  const VERSIONS = [
+    { id:'lexa', name:'lexa.', date:'2026-04-18', desc:'Vocabulary companion. Candy palette · Bricolage Grotesque + Geist. Colored stack cards, flashcards with IPA, star + sound. Designed by Claude Design.',
+      preview:`<div class="preview p-lexa"><span class="tag">Vocabulary</span><div class="stack"><div class="s" style="background:#C9B8FF"></div><div class="s" style="background:#D6F24A"></div><div class="s" style="background:#3E6BFF"></div><div class="s" style="background:#FF5A2E"></div><div class="s" style="background:#FFB6D1"></div></div></div>` },
+    { id:'abc', name:'abc', date:'2026-04-18', desc:'Learning English app. Flat, bright, 5 colored collection cards with level + word-count pills and dark arrow chip.',
+      preview:`<div class="preview p-abc"><span class="tag">English</span><div class="b" style="background:#c9b3ff"></div><div class="b" style="background:#c9e870"></div><div class="b" style="background:#3f5fd9"></div><div class="b" style="background:#e85a3b"></div><div class="b" style="background:#d7b9ff"></div></div>` },
+    { id:'fitness', name:'Fitness', date:'2026-04-18', desc:'Apple Fitness Summary. Activity Rings (Move · Exercise · Stand), Step Count + Step Distance tiles, floating pill tabbar with lime accent.',
+      preview:`<div class="preview p-fitness"><span class="tag">Fitness</span><div class="ft">Summary</div><div class="rings"><div class="ring" style="border-color:#fa114f"></div><div class="ring" style="border-color:#92e82a"></div><div class="ring" style="border-color:#1ad0e0"></div></div></div>` },
+    { id:'brain', name:'Brain', date:'2026-04-17', desc:'ADHD-first focus companion. Endel-style dark with breathing orb. 8 scenarios (Hyperfocus · Body Double · Unfreeze · Dopamine · Calm · Brainstorm · Journal · Bedtime). Audio engine + live timer.',
+      preview:`<div class="preview p-brain"><span class="tag">Focus</span></div>` },
+  ];
+
+  const verEl = document.getElementById('versions');
+
+  async function render(){
+    const currentDefault = await cloud.get('gallery.default');
+    const banner = document.getElementById('defaultBanner');
+    if (currentDefault){
+      const v = VERSIONS.find(x=>x.id===currentDefault);
+      if (v){ document.getElementById('defaultName').textContent = v.name; banner.style.display='flex'; }
+    }
+
+    verEl.innerHTML = VERSIONS.map(v => `
+      <div class="ver ${v.id===currentDefault?'active':''}" data-id="${v.id}">
+        ${v.preview}
+        <div class="vrow"><div class="vname bri">${v.name}</div><div class="vdate">${v.date}</div></div>
+        <div class="vdesc">${v.desc}</div>
+        <div class="vactions">
+          <button class="vbtn primary" data-act="open" data-id="${v.id}">Open →</button>
+          <button class="vbtn ${v.id===currentDefault?'active':'ghost'}" data-act="default" data-id="${v.id}">${v.id===currentDefault?'✓ Default':'Set as default'}</button>
+        </div>
+      </div>`).join('');
+
+    verEl.querySelectorAll('[data-act]').forEach(btn => {
+      btn.addEventListener('click', async e => {
+        e.stopPropagation();
+        const id = btn.dataset.id, act = btn.dataset.act;
+        H.light();
+        if (act === 'open'){ location.href = `/v/${id}`; }
+        if (act === 'default'){
+          await cloud.set('gallery.default', id);
+          H.ok();
+          render();
+        }
+      });
+    });
+    verEl.querySelectorAll('.ver').forEach(v => {
+      v.addEventListener('click', () => { H.light(); location.href = `/v/${v.dataset.id}`; });
+    });
+  }
+
+  document.getElementById('clearDefault').addEventListener('click', async e => {
+    e.stopPropagation();
+    await cloud.del('gallery.default');
+    H.tap(); render();
+  });
+
+  render();
+
+  // If ?launch=1 in URL, auto-open default after brief delay (for menu-button direct launch)
+  if (new URLSearchParams(location.search).get('launch') === '1'){
+    cloud.get('gallery.default').then(id => { if (id) location.href = `/v/${id}`; });
+  }
+</script>
+</body></html>
