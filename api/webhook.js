@@ -1,7 +1,7 @@
 // Telegram Bot webhook — @Goldberg2bot
 const TOKEN = process.env.BOT_TOKEN;
 const APP_URL = process.env.APP_URL || 'https://goldberg2-habits.vercel.app';
-const LEXA_URL = APP_URL;
+const HEBREW_URL = APP_URL;
 const TG = `https://api.telegram.org/bot${TOKEN}`;
 
 const tg = (method, body) =>
@@ -19,13 +19,13 @@ export default async function handler(req, res) {
     const chat_id = u.message.chat.id;
     const cmd = u.message.text.split(' ')[0];
 
-    if (cmd === '/start' || cmd === '/lexa' || cmd === '/learn') {
+    if (cmd === '/start' || cmd === '/hebrew' || cmd === '/learn') {
       await tg('sendMessage', {
         chat_id,
-        text: '📚 *lexa.*\n\nA vocabulary companion. Tap below to open.',
+        text: '🇮🇱 *Hebrew · Learning*\n\nSpeak · Listen · Read · Grammar. Tap below to open.',
         parse_mode: 'Markdown',
         reply_markup: {
-          inline_keyboard: [[{ text: '📚 Open lexa.', web_app: { url: LEXA_URL } }]]
+          inline_keyboard: [[{ text: '🇮🇱 Open Hebrew', web_app: { url: HEBREW_URL } }]]
         }
       });
     } else if (cmd === '/gallery') {
@@ -39,16 +39,16 @@ export default async function handler(req, res) {
       });
     } else if (cmd === '/pro') {
       const inv = await tg('createInvoiceLink', {
-        title: 'lexa. Pro',
-        description: 'Unlimited collections, AI coach, offline packs',
-        payload: `lexa_pro_${u.message.from.id}_${Date.now()}`,
+        title: 'Hebrew Pro',
+        description: 'All levels (A1→C2), offline packs, native-speaker audio',
+        payload: `hebrew_pro_${u.message.from.id}_${Date.now()}`,
         currency: 'XTR',
-        prices: [{ label: 'lexa. Pro (lifetime)', amount: 150 }]
+        prices: [{ label: 'Hebrew Pro (lifetime)', amount: 150 }]
       });
       if (inv?.ok) {
         await tg('sendMessage', {
           chat_id,
-          text: 'Unlock lexa. Pro — 150 ⭐',
+          text: 'Unlock Hebrew Pro — 150 ⭐',
           reply_markup: { inline_keyboard: [[{ text: '⭐ Pay 150 Stars', url: inv.result }]] }
         });
       }
@@ -86,10 +86,10 @@ export default async function handler(req, res) {
     const chat_id = u.message.chat.id;
     await tg('sendMessage', {
       chat_id,
-      text: '⭐ *lexa. Pro unlocked.* Unlimited collections + AI coach are yours.',
+      text: '⭐ *Hebrew Pro unlocked.* All levels + offline packs are yours.',
       parse_mode: 'Markdown',
       reply_markup: {
-        inline_keyboard: [[{ text: '📚 Open lexa.', web_app: { url: LEXA_URL } }]]
+        inline_keyboard: [[{ text: '🇮🇱 Open Hebrew', web_app: { url: HEBREW_URL } }]]
       }
     });
   }
