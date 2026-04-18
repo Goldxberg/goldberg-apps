@@ -3,153 +3,696 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#0a0a0a" />
-<title>Goldberg Apps — gallery</title>
+<meta name="theme-color" content="#F4F3EE" />
+<title>lexa. — vocabulary companion</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  :root{--bg:#0a0a0b;--ink:#f4f4f4;--muted:#8e8e93;--card:#151518;--line:rgba(255,255,255,.08);--accent:#c6ff3a}
-  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Geist',-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  :root{
+    --bg:#F4F3EE;
+    --ink:#111;
+    --muted:#8a8a8f;
+    --chip:#ECEAE2;
+    --line:rgba(0,0,0,.06);
+    /* Candy palette */
+    --c1-bg:#C9B8FF;--c1-fg:#1A1033;--c1-pill:rgba(255,255,255,.55);
+    --c2-bg:#D6F24A;--c2-fg:#1F2600;--c2-pill:rgba(255,255,255,.6);
+    --c3-bg:#3E6BFF;--c3-fg:#F4F3FF;--c3-pill:rgba(255,255,255,.22);
+    --c4-bg:#FF5A2E;--c4-fg:#2A0800;--c4-pill:rgba(255,255,255,.45);
+    --c5-bg:#FFB6D1;--c5-fg:#2A0813;--c5-pill:rgba(255,255,255,.55);
+    --c6-bg:#0F1010;--c6-fg:#F4F3EE;--c6-pill:rgba(255,255,255,.14);
+  }
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Geist',-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
   body{min-height:100dvh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
-  .app{max-width:480px;margin:0 auto;padding:40px 22px 40px}
-  .bri{font-family:'Bricolage Grotesque',system-ui,sans-serif}
-  .head{margin-bottom:28px}
-  .kicker{font-size:12px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase;margin-bottom:10px}
-  h1{font-family:'Bricolage Grotesque',system-ui;font-size:36px;font-weight:600;letter-spacing:-1.2px;margin:0 0 8px;line-height:1}
-  .sub{color:var(--muted);font-size:15px;line-height:1.45}
-  .default-banner{background:rgba(198,255,58,.08);border:1px solid rgba(198,255,58,.2);border-radius:14px;padding:12px 14px;margin:18px 0 22px;font-size:13px;display:flex;align-items:center;gap:10px;color:var(--accent)}
-  .default-banner button{margin-left:auto;background:transparent;border:1px solid rgba(198,255,58,.4);color:var(--accent);font-family:inherit;font-size:12px;padding:6px 12px;border-radius:999px;cursor:pointer}
-  .versions{display:flex;flex-direction:column;gap:14px}
-  .ver{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;cursor:pointer;transition:transform .15s,background .2s}
-  .ver:active{transform:scale(.985)}
-  .ver.active{border-color:rgba(198,255,58,.35);background:rgba(198,255,58,.04)}
-  .preview{height:150px;border-radius:14px;margin-bottom:14px;overflow:hidden;position:relative;background:#000}
-  .preview .tag{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.6);backdrop-filter:blur(12px);color:#fff;font-size:10px;padding:4px 9px;border-radius:999px;letter-spacing:.08em;text-transform:uppercase}
-  .vrow{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
-  .vname{font-family:'Bricolage Grotesque',system-ui;font-size:22px;font-weight:600;letter-spacing:-.5px;line-height:1}
-  .vdate{color:var(--muted);font-size:12px;flex-shrink:0;padding-top:4px}
-  .vdesc{color:var(--muted);font-size:13px;line-height:1.45;margin-bottom:14px}
-  .vactions{display:flex;gap:8px}
-  .vbtn{flex:1;height:40px;border-radius:12px;border:0;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
-  .vbtn.primary{background:var(--accent);color:#000}
-  .vbtn.ghost{background:rgba(255,255,255,.06);color:var(--ink);border:1px solid var(--line)}
-  .vbtn.active{background:#222;color:var(--accent);border:1px solid rgba(198,255,58,.3)}
-  .footer{margin-top:40px;padding-top:24px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;line-height:1.5}
-  .footer a{color:var(--accent);text-decoration:none}
+  .bri{font-family:'Bricolage Grotesque',-apple-system,system-ui,sans-serif}
 
-  /* Mini previews (so user can see each design at a glance) */
-  .p-lexa{background:radial-gradient(800px 400px at 50% 30%,#f3f2ed,#d5d2ca);display:flex;align-items:center;justify-content:center}
-  .p-lexa .stack{display:flex;flex-direction:column;gap:4px;width:72%}
-  .p-lexa .s{height:22px;border-radius:6px}
-  .p-abc{background:#fff;padding:14px;display:flex;flex-direction:column;gap:5px}
-  .p-abc .b{flex:1;border-radius:8px;min-height:22px}
-  .p-fitness{background:#000;padding:14px;color:#fff;font-family:-apple-system}
-  .p-fitness .ft{font-size:14px;font-weight:700;margin-bottom:6px}
-  .p-fitness .rings{display:flex;gap:12px;align-items:center;margin-top:6px}
-  .p-fitness .ring{width:48px;height:48px;border-radius:50%;border:6px solid}
-  .p-brain{background:#000;display:flex;align-items:center;justify-content:center;position:relative}
-  .p-brain::after{content:'';position:absolute;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(198,255,58,.4),rgba(198,255,58,.05) 60%,transparent 80%);filter:blur(16px)}
+  .app{max-width:430px;margin:0 auto;padding:12px 0 110px;position:relative;min-height:100dvh}
+
+  /* Header */
+  .head{padding:50px 22px 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .title{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:32px;font-weight:600;letter-spacing:-1.2px;color:#111;line-height:1;margin:0}
+  .plus{width:34px;height:34px;border-radius:999px;background:transparent;border:0;display:grid;place-items:center;cursor:pointer}
+  .plus:active{background:var(--chip)}
+
+  /* Search row */
+  .searchrow{padding:0 22px;display:flex;gap:10px;align-items:center;margin-bottom:18px}
+  .search{flex:1;height:40px;border-radius:999px;background:var(--chip);display:flex;align-items:center;gap:8px;padding:0 14px}
+  .search input{flex:1;border:0;background:transparent;outline:0;font-family:'Geist',system-ui;font-size:15px;color:#111;letter-spacing:-.2px}
+  .search input::placeholder{color:var(--muted)}
+  .filter{width:40px;height:40px;border-radius:999px;background:var(--chip);border:0;display:grid;place-items:center;cursor:pointer}
+
+  /* Cards */
+  .cards{padding:4px 14px;display:flex;flex-direction:column;gap:10px}
+  .card{width:100%;border:0;text-align:left;border-radius:18px;padding:16px 18px 18px;display:flex;flex-direction:column;gap:12px;cursor:pointer;transition:transform .16s cubic-bezier(.2,.8,.2,1);box-shadow:0 1px 0 rgba(0,0,0,.02);font-family:inherit}
+  .card:active{transform:scale(.985)}
+  .card .crow1{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .card .cname{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-.8px;line-height:1.05}
+  .card .cpct{font-family:'Geist',system-ui;font-size:13px;font-weight:500;opacity:.75;padding-top:4px;letter-spacing:-.2px}
+  .card .crow2{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .pills{display:flex;gap:6px;flex-wrap:wrap}
+  .pill{display:inline-flex;align-items:center;height:26px;padding:0 11px;border-radius:999px;font-family:'Geist',system-ui;font-size:12px;font-weight:500;letter-spacing:-.1px;white-space:nowrap}
+  .chip{width:32px;height:32px;border-radius:999px;display:grid;place-items:center;flex-shrink:0}
+
+  /* Tab bar */
+  .tabbar{position:fixed;left:0;right:0;bottom:0;padding:10px 14px calc(22px + env(safe-area-inset-bottom));background:linear-gradient(to top,#F4F3EE 70%,rgba(244,243,238,0));display:flex;justify-content:space-around;align-items:flex-end;z-index:10;max-width:430px;margin:0 auto}
+  .tab{border:0;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 6px;min-width:54px;color:#9a9a94;font-family:'Geist',system-ui;font-size:10px;font-weight:500;letter-spacing:-.1px}
+  .tab.active{color:#111}
+  .tab svg{display:block}
+
+  /* Detail */
+  .screen{position:fixed;inset:0;z-index:20;display:none;flex-direction:column;animation:slideIn 300ms cubic-bezier(.2,.8,.2,1);overflow-y:auto}
+  .screen.open{display:flex}
+  @keyframes slideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  .dhead{padding:50px 18px 0;display:flex;align-items:center;justify-content:space-between}
+  .iconbtn{width:40px;height:40px;border-radius:999px;border:0;display:grid;place-items:center;cursor:pointer;font-weight:500;font-size:18px;font-family:inherit}
+  .dcount{font-family:'Geist',system-ui;font-size:13px;font-weight:500;opacity:.7;letter-spacing:-.1px}
+  .dmeta{padding:18px 22px 0}
+  .dmeta .lev{font-family:'Geist',system-ui;font-size:12px;font-weight:500;opacity:.7;letter-spacing:.4px;text-transform:uppercase}
+  .dmeta .dname{font-family:'Bricolage Grotesque',system-ui;font-size:44px;font-weight:600;letter-spacing:-1.8px;line-height:1;margin-top:6px}
+  .progress{margin-top:18px;height:6px;border-radius:999px;overflow:hidden}
+  .progressfill{height:100%;border-radius:999px;transition:width 400ms ease}
+  .progresslbl{display:flex;justify-content:space-between;margin-top:6px;font-family:'Geist',system-ui;font-size:11px;opacity:.7}
+
+  .flashwrap{padding:22px 18px 28px}
+  .flash{border-radius:18px;padding:22px;min-height:220px;display:flex;flex-direction:column;justify-content:space-between;backdrop-filter:blur(10px)}
+  .flashtop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  .flashword{font-family:'Bricolage Grotesque',system-ui;font-size:34px;font-weight:600;letter-spacing:-1.2px;line-height:1}
+  .flashmeta{font-family:'Geist',system-ui;font-size:14px;opacity:.7;margin-top:6px;font-variant-numeric:tabular-nums}
+  .flashacts{display:flex;gap:6px}
+  .actbtn{width:36px;height:36px;border-radius:999px;border:0;cursor:pointer;display:grid;place-items:center}
+  .gloss{font-family:'Geist',system-ui;font-size:16px;opacity:.85;line-height:1.35;margin-top:18px}
+  .navbtns{display:flex;gap:10px;margin-top:14px}
+  .navbtn{flex:1;height:48px;border-radius:999px;border:0;font-family:'Geist',system-ui;font-size:15px;font-weight:500;cursor:pointer;letter-spacing:-.2px;font-family:'Geist',system-ui}
+  .navbtn:disabled{opacity:.5;cursor:default}
+
+  /* Other tabs */
+  .tab-view{display:none}
+  .tab-view.active{display:block}
+  .section{padding:0 22px;margin-bottom:22px}
+  .sectitle{font-family:'Bricolage Grotesque',system-ui;font-size:22px;font-weight:600;letter-spacing:-.8px;margin:8px 0 14px;color:#111}
+  .voc-item{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line)}
+  .voc-en{font-family:'Bricolage Grotesque',system-ui;font-size:18px;font-weight:600;letter-spacing:-.4px}
+  .voc-ipa{font-family:'Geist',system-ui;font-size:13px;color:var(--muted);margin-top:2px}
+  .voc-gloss{font-family:'Geist',system-ui;font-size:12px;color:var(--muted);margin-top:2px}
+  .voc-star{width:36px;height:36px;border-radius:999px;background:var(--chip);border:0;display:grid;place-items:center;cursor:pointer}
+
+  .libgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px}
+  .libcard{border-radius:18px;padding:18px;min-height:140px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer}
+  .libcard h4{font-family:'Bricolage Grotesque',system-ui;font-size:20px;font-weight:600;letter-spacing:-.6px;margin:0;line-height:1.05}
+  .libcard .sub{font-family:'Geist',system-ui;font-size:12px;opacity:.7;margin-top:6px}
+
+  .chatwrap{padding:4px 18px 90px;display:flex;flex-direction:column;gap:12px}
+  .bubble{max-width:85%;padding:12px 16px;border-radius:20px;font-family:'Geist',system-ui;font-size:15px;line-height:1.4;letter-spacing:-.1px}
+  .bubble.ai{align-self:flex-start;background:#ECEAE2;color:#111;border-bottom-left-radius:6px}
+  .bubble.me{align-self:flex-end;background:#111;color:#F4F3EE;border-bottom-right-radius:6px}
+  .chatinput{position:fixed;left:0;right:0;bottom:calc(78px + env(safe-area-inset-bottom));padding:8px 18px;display:flex;gap:8px;max-width:430px;margin:0 auto}
+  .chatinput input{flex:1;height:44px;border-radius:999px;background:#ECEAE2;border:0;padding:0 16px;font-family:inherit;font-size:15px;outline:0;letter-spacing:-.1px}
+  .chatinput button{width:44px;height:44px;border-radius:999px;background:#111;color:#F4F3EE;border:0;display:grid;place-items:center;cursor:pointer}
+
+  .phead{display:flex;align-items:center;gap:14px;padding:0 22px 18px}
+  .avatar{width:64px;height:64px;border-radius:999px;background:linear-gradient(135deg,#C9B8FF,#3E6BFF);display:grid;place-items:center;color:#fff;font-family:'Bricolage Grotesque';font-weight:600;font-size:24px;overflow:hidden}
+  .avatar img{width:100%;height:100%;object-fit:cover}
+  .pname{font-family:'Bricolage Grotesque',system-ui;font-size:20px;font-weight:600;letter-spacing:-.5px}
+  .pmeta{font-family:'Geist',system-ui;font-size:13px;color:var(--muted);margin-top:2px}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 22px 22px}
+  .stat{background:var(--chip);border-radius:16px;padding:14px;text-align:center}
+  .stat .n{font-family:'Bricolage Grotesque',system-ui;font-size:24px;font-weight:600;letter-spacing:-.6px}
+  .stat .l{font-family:'Geist',system-ui;font-size:12px;color:var(--muted);margin-top:2px}
+  .row{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-bottom:1px solid var(--line);cursor:pointer}
+  .row .lbl{font-family:'Geist',system-ui;font-size:16px;letter-spacing:-.2px}
+  .row .val{font-family:'Geist',system-ui;font-size:14px;color:var(--muted)}
+
+  /* New collection sheet */
+  .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:30}
+  .backdrop.on{opacity:1;pointer-events:auto}
+  .sheet{position:fixed;left:0;right:0;bottom:-100%;background:#F4F3EE;z-index:35;border-radius:24px 24px 0 0;padding:22px 22px calc(22px + env(safe-area-inset-bottom));transition:bottom .28s ease;box-shadow:0 -20px 50px rgba(0,0,0,.15);max-width:430px;margin:0 auto}
+  .sheet.open{bottom:0}
+  .sheet h3{font-family:'Bricolage Grotesque',system-ui;font-size:22px;font-weight:600;letter-spacing:-.6px;margin:0 0 16px}
+  .sheet label{display:block;font-family:'Geist',system-ui;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin:12px 0 6px}
+  .sheet input,.sheet select{width:100%;height:44px;border-radius:999px;background:#ECEAE2;border:0;padding:0 16px;font-family:inherit;font-size:15px;outline:0}
+  .swatches{display:flex;gap:8px;flex-wrap:wrap}
+  .sw{width:36px;height:36px;border-radius:999px;cursor:pointer;border:3px solid transparent}
+  .sw.sel{border-color:#111}
+  .sheet .save{width:100%;height:48px;border-radius:999px;background:#111;color:#F4F3EE;border:0;font-family:'Geist',system-ui;font-size:15px;font-weight:500;margin-top:18px;cursor:pointer}
+
+  *::-webkit-scrollbar{display:none}
+  ::selection{background:#111;color:#F4F3EE}
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="head">
-    <div class="kicker">Your app gallery</div>
-    <h1>All versions</h1>
-    <div class="sub">Every design we've built, saved as its own stable URL. Tap <b>Open</b> to run a version, or <b>Set as default</b> to make the bot menu button launch that one.</div>
+
+<div class="app" id="root">
+
+  <!-- Home -->
+  <div id="home" class="tab-view active">
+    <div class="head">
+      <h1 class="title">My collections</h1>
+      <button class="plus" id="addBtn" aria-label="Add collection">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#111" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="searchrow">
+      <div class="search">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="#8a8a8f" stroke-width="1.6"/><path d="M11 11l3 3" stroke="#8a8a8f" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <input id="searchInput" placeholder="Search" />
+      </div>
+      <button class="filter" aria-label="Filter" id="filterBtn">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 5h8M15 5h0M3 13h2M9 13h6" stroke="#111" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="5" r="2" stroke="#111" stroke-width="1.6"/><circle cx="7" cy="13" r="2" stroke="#111" stroke-width="1.6"/></svg>
+      </button>
+    </div>
+    <div class="cards" id="cards"></div>
   </div>
 
-  <div id="defaultBanner" class="default-banner" style="display:none">
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-    <span><b id="defaultName"></b> is your current default</span>
-    <button id="clearDefault">Clear</button>
+  <!-- Vocabulary -->
+  <div id="vocab" class="tab-view">
+    <div class="head"><h1 class="title">Vocabulary</h1><span></span></div>
+    <div class="searchrow">
+      <div class="search">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="#8a8a8f" stroke-width="1.6"/><path d="M11 11l3 3" stroke="#8a8a8f" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <input placeholder="Search words" />
+      </div>
+    </div>
+    <div class="section" id="vocList"></div>
   </div>
 
-  <div class="versions" id="versions"></div>
+  <!-- Library -->
+  <div id="library" class="tab-view">
+    <div class="head"><h1 class="title">Library</h1><span></span></div>
+    <div class="libgrid" id="libGrid"></div>
+  </div>
 
-  <div class="footer">
-    Source: <a href="https://github.com/Goldxberg/goldberg-apps" id="ghLink">github.com/Goldxberg/goldberg-apps</a><br>
-    Deployed on Vercel · Each version has its own stable URL so nothing gets lost.
+  <!-- Chat -->
+  <div id="chat" class="tab-view">
+    <div class="head"><h1 class="title">Lexa AI</h1><span></span></div>
+    <div class="chatwrap" id="chatWrap">
+      <div class="bubble ai">Hi! I'm your vocabulary coach. Ask me for word meanings, example sentences, or quiz me on any collection.</div>
+    </div>
+    <div class="chatinput">
+      <input id="chatInput" placeholder="Ask anything…" />
+      <button id="chatSend" aria-label="Send">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 12 20 4l-4 16-4-7-8-1Z" fill="#F4F3EE"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Profile -->
+  <div id="profile" class="tab-view">
+    <div class="head"><h1 class="title">Profile</h1><span></span></div>
+    <div class="phead">
+      <div class="avatar" id="avatar">L</div>
+      <div>
+        <div class="pname" id="pname">Learner</div>
+        <div class="pmeta" id="pmeta">Pre-intermediate · 7-day streak</div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="n" id="sWords">0</div><div class="l">Words</div></div>
+      <div class="stat"><div class="n" id="sStreak">7</div><div class="l">Streak</div></div>
+      <div class="stat"><div class="n" id="sStars">0</div><div class="l">Starred</div></div>
+    </div>
+    <div class="row" id="proRow"><div class="lbl">✦ lexa. Pro</div><div class="val">150 ⭐</div></div>
+    <div class="row" id="shareRow"><div class="lbl">Share progress</div><div class="val">→</div></div>
+    <div class="row" id="remindRow"><div class="lbl">Daily reminders</div><div class="val" id="remindVal">Off</div></div>
+    <div class="row"><div class="lbl">Palette</div><div class="val">Candy</div></div>
+  </div>
+
+</div>
+
+<!-- Detail screen -->
+<div id="detail" class="screen">
+  <div class="dhead">
+    <button class="iconbtn" id="detailBack" aria-label="Back">
+      <svg width="12" height="20" viewBox="0 0 12 20" fill="none"><path d="M10 2 2 10l8 8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="dcount" id="dCount">1 / 5</div>
+    <button class="iconbtn" id="detailMore">⋯</button>
+  </div>
+  <div class="dmeta">
+    <div class="lev" id="dLevel">Level · Words</div>
+    <div class="dname bri" id="dName">Collection</div>
+    <div class="progress" id="dProgress"><div class="progressfill" id="dProgressFill" style="width:0%"></div></div>
+    <div class="progresslbl"><span>Progress</span><span id="dProgressTxt">0%</span></div>
+  </div>
+  <div class="flashwrap">
+    <div class="flash" id="flash">
+      <div class="flashtop">
+        <div>
+          <div class="flashword" id="flashWord">Word</div>
+          <div class="flashmeta" id="flashMeta">/wɜːd/ · noun</div>
+        </div>
+        <div class="flashacts">
+          <button class="actbtn" id="flashSound" aria-label="Pronounce">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 7v6h3l4 3V4L7 7H4z" fill="currentColor"/><path d="M14 7c1.2 1 1.2 5 0 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+          <button class="actbtn" id="flashStar" aria-label="Star">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" id="flashStarSvg"><path d="M9 1.5l2.3 4.7 5.2.8-3.8 3.7.9 5.2L9 13.5 4.4 15.9l.9-5.2L1.5 7l5.2-.8L9 1.5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" fill="none"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="gloss" id="flashGloss">Definition</div>
+    </div>
+    <div class="navbtns">
+      <button class="navbtn" id="navPrev">Previous</button>
+      <button class="navbtn" id="navNext">Next word</button>
+    </div>
   </div>
 </div>
 
-<script>
-  const tg = window.Telegram?.WebApp;
-  tg?.ready(); tg?.expand();
-  tg?.setHeaderColor?.('#0a0a0b'); tg?.setBackgroundColor?.('#0a0a0b');
-  if (tg?.isVersionAtLeast?.('7.10')) tg.setBottomBarColor?.('#0a0a0b');
-  const H = { tap:()=>tg?.HapticFeedback?.selectionChanged?.(), ok:()=>tg?.HapticFeedback?.notificationOccurred?.('success'), light:()=>tg?.HapticFeedback?.impactOccurred?.('light') };
+<!-- Add collection sheet -->
+<div class="backdrop" id="backdrop"></div>
+<div class="sheet" id="sheet">
+  <h3>New collection</h3>
+  <label>Name</label>
+  <input id="newName" placeholder="Work, Idioms, Travel…" />
+  <label>Level</label>
+  <select id="newLevel">
+    <option>Elementary</option>
+    <option selected>Pre-intermediate</option>
+    <option>Intermediate</option>
+    <option>Advanced</option>
+  </select>
+  <label>Color</label>
+  <div class="swatches" id="swatches"></div>
+  <button class="save" id="saveCollection">Create</button>
+</div>
 
+<!-- Tab bar -->
+<nav class="tabbar">
+  <button class="tab" data-tab="vocab" aria-label="Vocabulary">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M4 4h7a3 3 0 013 3v11H7a3 3 0 01-3-3V4zM18 4h-4" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+    <span>Vocabulary</span>
+  </button>
+  <button class="tab" data-tab="library" aria-label="Library">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="3.5" y="3.5" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.6"/><rect x="12.5" y="3.5" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.6"/><rect x="3.5" y="12.5" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.6"/><rect x="12.5" y="12.5" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.6"/></svg>
+    <span>Library</span>
+  </button>
+  <button class="tab active" data-tab="home" aria-label="Home">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M3 10l8-6 8 6v8a1 1 0 01-1 1h-4v-5H8v5H4a1 1 0 01-1-1v-8z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+    <span>Home</span>
+  </button>
+  <button class="tab" data-tab="chat" aria-label="Chat">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M4 5h14a1 1 0 011 1v9a1 1 0 01-1 1h-8l-4 3v-3H4a1 1 0 01-1-1V6a1 1 0 011-1z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+    <span>Chat</span>
+  </button>
+  <button class="tab" data-tab="profile" aria-label="Profile">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="8" r="3.5" stroke="currentColor" stroke-width="1.6"/><path d="M4 19c1.5-3.5 4.5-5 7-5s5.5 1.5 7 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <span>Profile</span>
+  </button>
+</nav>
+
+<script>
+  // ---------- Telegram ----------
+  const tg = window.Telegram?.WebApp;
+  const has = n => tg?.isVersionAtLeast?.(n);
+  try{
+    tg?.ready();
+    tg?.expand();
+    tg?.setHeaderColor?.('#F4F3EE');
+    tg?.setBackgroundColor?.('#F4F3EE');
+    if (has('7.10')) tg.setBottomBarColor?.('#F4F3EE');
+    if (has('7.7')) tg.disableVerticalSwipes?.();
+  }catch{}
+  const H = {
+    tap:()=>tg?.HapticFeedback?.selectionChanged?.(),
+    light:()=>tg?.HapticFeedback?.impactOccurred?.('light'),
+    med:()=>tg?.HapticFeedback?.impactOccurred?.('medium'),
+    ok:()=>tg?.HapticFeedback?.notificationOccurred?.('success'),
+    err:()=>tg?.HapticFeedback?.notificationOccurred?.('error'),
+  };
   const cloud = {
     get:k=>new Promise(r=>{tg?.CloudStorage?.getItem?(tg.CloudStorage.getItem(k,(_,v)=>r(v??localStorage.getItem(k)))):r(localStorage.getItem(k))}),
-    set:(k,v)=>new Promise(r=>{localStorage.setItem(k,v);tg?.CloudStorage?.setItem?tg.CloudStorage.setItem(k,v,()=>r()):r()}),
-    del:k=>new Promise(r=>{localStorage.removeItem(k);tg?.CloudStorage?.removeItem?tg.CloudStorage.removeItem(k,()=>r()):r()})
+    set:(k,v)=>new Promise(r=>{localStorage.setItem(k,v);tg?.CloudStorage?.setItem?tg.CloudStorage.setItem(k,v,()=>r()):r()})
   };
 
-  const VERSIONS = [
-    { id:'lexa', name:'lexa.', date:'2026-04-18', desc:'Vocabulary companion. Candy palette · Bricolage Grotesque + Geist. Colored stack cards, flashcards with IPA, star + sound. Designed by Claude Design.',
-      preview:`<div class="preview p-lexa"><span class="tag">Vocabulary</span><div class="stack"><div class="s" style="background:#C9B8FF"></div><div class="s" style="background:#D6F24A"></div><div class="s" style="background:#3E6BFF"></div><div class="s" style="background:#FF5A2E"></div><div class="s" style="background:#FFB6D1"></div></div></div>` },
-    { id:'abc', name:'abc', date:'2026-04-18', desc:'Learning English app. Flat, bright, 5 colored collection cards with level + word-count pills and dark arrow chip.',
-      preview:`<div class="preview p-abc"><span class="tag">English</span><div class="b" style="background:#c9b3ff"></div><div class="b" style="background:#c9e870"></div><div class="b" style="background:#3f5fd9"></div><div class="b" style="background:#e85a3b"></div><div class="b" style="background:#d7b9ff"></div></div>` },
-    { id:'fitness', name:'Fitness', date:'2026-04-18', desc:'Apple Fitness Summary. Activity Rings (Move · Exercise · Stand), Step Count + Step Distance tiles, floating pill tabbar with lime accent.',
-      preview:`<div class="preview p-fitness"><span class="tag">Fitness</span><div class="ft">Summary</div><div class="rings"><div class="ring" style="border-color:#fa114f"></div><div class="ring" style="border-color:#92e82a"></div><div class="ring" style="border-color:#1ad0e0"></div></div></div>` },
-    { id:'brain', name:'Brain', date:'2026-04-17', desc:'ADHD-first focus companion. Endel-style dark with breathing orb. 8 scenarios (Hyperfocus · Body Double · Unfreeze · Dopamine · Calm · Brainstorm · Journal · Bedtime). Audio engine + live timer.',
-      preview:`<div class="preview p-brain"><span class="tag">Focus</span></div>` },
+  // ---------- Palette (candy) ----------
+  const PALETTE = [
+    { bg:'#C9B8FF', fg:'#1A1033', pill:'rgba(255,255,255,0.55)' },
+    { bg:'#D6F24A', fg:'#1F2600', pill:'rgba(255,255,255,0.6)'  },
+    { bg:'#3E6BFF', fg:'#F4F3FF', pill:'rgba(255,255,255,0.22)' },
+    { bg:'#FF5A2E', fg:'#2A0800', pill:'rgba(255,255,255,0.45)' },
+    { bg:'#FFB6D1', fg:'#2A0813', pill:'rgba(255,255,255,0.55)' },
+    { bg:'#0F1010', fg:'#F4F3EE', pill:'rgba(255,255,255,0.14)' },
   ];
 
-  const verEl = document.getElementById('versions');
+  // ---------- Data ----------
+  const COLLECTIONS = [
+    { name:'Social issues', level:'Pre-intermediate', words:48,  progress:23 },
+    { name:'Museum',        level:'Intermediate',     words:216, progress:78 },
+    { name:'Daily life',    level:'Elementary',       words:167, progress:98 },
+    { name:'Food',          level:'Pre-intermediate', words:90,  progress:100 },
+    { name:'Music',         level:'Intermediate',     words:134, progress:92 },
+    { name:'Travel',        level:'Advanced',         words:203, progress:41 },
+  ];
 
-  async function render(){
-    const currentDefault = await cloud.get('gallery.default');
-    const banner = document.getElementById('defaultBanner');
-    if (currentDefault){
-      const v = VERSIONS.find(x=>x.id===currentDefault);
-      if (v){ document.getElementById('defaultName').textContent = v.name; banner.style.display='flex'; }
+  const WORDS = {
+    'Social issues': [
+      { en:'inequality', ipa:'/ˌɪnɪˈkwɒləti/', pos:'noun', gloss:'lack of fairness' },
+      { en:'advocate',   ipa:'/ˈædvəkeɪt/',    pos:'verb', gloss:'to publicly support' },
+      { en:'grassroots', ipa:'/ˈɡræsˌruːts/',  pos:'adj.', gloss:'from ordinary people' },
+      { en:'reform',     ipa:'/rɪˈfɔːm/',      pos:'noun', gloss:'a change for the better' },
+      { en:'stigma',     ipa:'/ˈstɪɡmə/',      pos:'noun', gloss:'strong social disapproval' },
+    ],
+    'Museum': [
+      { en:'curator',     ipa:'/kjʊˈreɪtə/',    pos:'noun', gloss:'keeper of a collection' },
+      { en:'exhibit',     ipa:'/ɪɡˈzɪbɪt/',     pos:'noun', gloss:'public display' },
+      { en:'artefact',    ipa:'/ˈɑːtɪfækt/',    pos:'noun', gloss:'man-made object' },
+      { en:'pedestal',    ipa:'/ˈpɛdɪstəl/',    pos:'noun', gloss:'base for a statue' },
+      { en:'restoration', ipa:'/ˌrɛstəˈreɪʃən/',pos:'noun', gloss:'bringing back to original' },
+    ],
+    'Daily life': [
+      { en:'commute', ipa:'/kəˈmjuːt/', pos:'verb', gloss:'travel to work' },
+      { en:'errand',  ipa:'/ˈɛrənd/',   pos:'noun', gloss:'a short task' },
+      { en:'chore',   ipa:'/tʃɔː/',     pos:'noun', gloss:'a routine task' },
+      { en:'linger',  ipa:'/ˈlɪŋɡə/',   pos:'verb', gloss:'stay a bit longer' },
+      { en:'routine', ipa:'/ruːˈtiːn/', pos:'noun', gloss:'regular sequence' },
+    ],
+    'Food': [
+      { en:'savoury',  ipa:'/ˈseɪvəri/',   pos:'adj.', gloss:'salty, not sweet' },
+      { en:'marinate', ipa:'/ˈmærɪneɪt/',  pos:'verb', gloss:'soak in sauce' },
+      { en:'al dente', ipa:'/æl ˈdɛnteɪ/', pos:'adj.', gloss:'firm to the bite' },
+      { en:'garnish',  ipa:'/ˈɡɑːnɪʃ/',    pos:'verb', gloss:'decorate food' },
+      { en:'palate',   ipa:'/ˈpælət/',     pos:'noun', gloss:'sense of taste' },
+    ],
+    'Music': [
+      { en:'crescendo', ipa:'/krɪˈʃɛndoʊ/', pos:'noun', gloss:'gradual loudening' },
+      { en:'tempo',     ipa:'/ˈtɛmpoʊ/',    pos:'noun', gloss:'speed of music' },
+      { en:'harmony',   ipa:'/ˈhɑːməni/',   pos:'noun', gloss:'pleasing combination' },
+      { en:'lyric',     ipa:'/ˈlɪrɪk/',     pos:'noun', gloss:'words of a song' },
+      { en:'improvise', ipa:'/ˈɪmprəvaɪz/', pos:'verb', gloss:'make up on the spot' },
+    ],
+    'Travel': [
+      { en:'itinerary', ipa:'/aɪˈtɪnərəri/', pos:'noun', gloss:'planned route' },
+      { en:'layover',   ipa:'/ˈleɪoʊvə/',    pos:'noun', gloss:'stop between flights' },
+      { en:'souvenir',  ipa:'/ˌsuːvəˈnɪə/',  pos:'noun', gloss:'memento from trip' },
+      { en:'excursion', ipa:'/ɪkˈskɜːʃən/',  pos:'noun', gloss:'short trip' },
+      { en:'embark',    ipa:'/ɪmˈbɑːk/',     pos:'verb', gloss:'board a ship' },
+    ],
+  };
+
+  // ---------- State ----------
+  let starred = new Set();
+  let currentIdx = 0;
+  let currentItem = null;
+  let currentPalette = null;
+
+  // ---------- Render home cards ----------
+  const cardsEl = document.getElementById('cards');
+  function renderCards(filter=''){
+    const q = filter.toLowerCase();
+    const items = COLLECTIONS.map((c,i)=>({c,i})).filter(x => x.c.name.toLowerCase().includes(q));
+    cardsEl.innerHTML = items.map(({c,i}) => {
+      const p = PALETTE[i % PALETTE.length];
+      return `
+        <button class="card" data-i="${i}" style="background:${p.bg};color:${p.fg}">
+          <div class="crow1">
+            <div class="cname">${c.name}</div>
+            <div class="cpct">${c.progress}%</div>
+          </div>
+          <div class="crow2">
+            <div class="pills">
+              <span class="pill" style="background:${p.pill};color:${p.fg}">${c.level}</span>
+              <span class="pill" style="background:${p.pill};color:${p.fg}">${c.words} words</span>
+            </div>
+            <div class="chip" style="background:${p.fg};color:${p.bg}">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+        </button>`;
+    }).join('');
+    cardsEl.querySelectorAll('.card').forEach(el => {
+      el.addEventListener('click', () => openDetail(Number(el.dataset.i)));
+    });
+    if (items.length === 0){
+      cardsEl.innerHTML = `<div style="text-align:center;padding:40px;font-size:14px;color:#888">No collections match "${filter}"</div>`;
     }
-
-    verEl.innerHTML = VERSIONS.map(v => `
-      <div class="ver ${v.id===currentDefault?'active':''}" data-id="${v.id}">
-        ${v.preview}
-        <div class="vrow"><div class="vname bri">${v.name}</div><div class="vdate">${v.date}</div></div>
-        <div class="vdesc">${v.desc}</div>
-        <div class="vactions">
-          <button class="vbtn primary" data-act="open" data-id="${v.id}">Open →</button>
-          <button class="vbtn ${v.id===currentDefault?'active':'ghost'}" data-act="default" data-id="${v.id}">${v.id===currentDefault?'✓ Default':'Set as default'}</button>
-        </div>
-      </div>`).join('');
-
-    verEl.querySelectorAll('[data-act]').forEach(btn => {
-      btn.addEventListener('click', async e => {
-        e.stopPropagation();
-        const id = btn.dataset.id, act = btn.dataset.act;
-        H.light();
-        if (act === 'open'){ location.href = `/v/${id}`; }
-        if (act === 'default'){
-          await cloud.set('gallery.default', id);
-          H.ok();
-          render();
-        }
-      });
-    });
-    verEl.querySelectorAll('.ver').forEach(v => {
-      v.addEventListener('click', () => { H.light(); location.href = `/v/${v.dataset.id}`; });
-    });
   }
+  renderCards();
 
-  document.getElementById('clearDefault').addEventListener('click', async e => {
-    e.stopPropagation();
-    await cloud.del('gallery.default');
-    H.tap(); render();
+  document.getElementById('searchInput').addEventListener('input', e => renderCards(e.target.value));
+
+  // ---------- Filter popup ----------
+  document.getElementById('filterBtn').addEventListener('click', () => {
+    H.tap();
+    tg?.showPopup?.({
+      title:'Sort by',
+      buttons:[
+        {id:'name',type:'default',text:'Name'},
+        {id:'prog',type:'default',text:'Progress'},
+        {id:'words',type:'default',text:'Word count'},
+        {id:'cancel',type:'cancel'},
+      ]
+    }, id => {
+      if (id === 'name') COLLECTIONS.sort((a,b)=>a.name.localeCompare(b.name));
+      if (id === 'prog') COLLECTIONS.sort((a,b)=>b.progress-a.progress);
+      if (id === 'words') COLLECTIONS.sort((a,b)=>b.words-a.words);
+      if (id && id!=='cancel'){ renderCards(); H.ok(); }
+    });
   });
 
-  render();
+  // ---------- Detail ----------
+  const detail = document.getElementById('detail');
+  function openDetail(idx){
+    currentItem = COLLECTIONS[idx];
+    currentPalette = PALETTE[idx % PALETTE.length];
+    currentIdx = 0;
+    detail.style.background = currentPalette.bg;
+    detail.style.color = currentPalette.fg;
+    document.getElementById('dLevel').textContent = `${currentItem.level} · ${currentItem.words} words`;
+    document.getElementById('dName').textContent = currentItem.name;
+    document.getElementById('dProgress').style.background = currentPalette.pill;
+    document.getElementById('dProgressFill').style.background = currentPalette.fg;
+    document.getElementById('dProgressFill').style.width = currentItem.progress + '%';
+    document.getElementById('dProgressTxt').textContent = currentItem.progress + '%';
 
-  // If ?launch=1 in URL, auto-open default after brief delay (for menu-button direct launch)
-  if (new URLSearchParams(location.search).get('launch') === '1'){
-    cloud.get('gallery.default').then(id => { if (id) location.href = `/v/${id}`; });
+    const flash = document.getElementById('flash');
+    flash.style.background = currentPalette.pill;
+    flash.style.color = currentPalette.fg;
+    document.getElementById('detailBack').style.background = currentPalette.pill;
+    document.getElementById('detailBack').style.color = currentPalette.fg;
+    document.getElementById('detailMore').style.background = currentPalette.pill;
+    document.getElementById('detailMore').style.color = currentPalette.fg;
+    document.getElementById('flashSound').style.background = currentPalette.fg;
+    document.getElementById('flashSound').style.color = currentPalette.bg;
+    document.getElementById('flashStar').style.background = 'transparent';
+    document.getElementById('flashStar').style.color = currentPalette.fg;
+    const prev = document.getElementById('navPrev');
+    prev.style.background = currentPalette.pill; prev.style.color = currentPalette.fg;
+    const next = document.getElementById('navNext');
+    next.style.background = currentPalette.fg; next.style.color = currentPalette.bg;
+
+    renderFlash();
+    detail.classList.add('open');
+    tg?.BackButton?.show?.();
+    H.light();
   }
+  function closeDetail(){
+    detail.classList.remove('open');
+    tg?.BackButton?.hide?.();
+  }
+  document.getElementById('detailBack').addEventListener('click', closeDetail);
+  tg?.BackButton?.onClick?.(closeDetail);
+
+  function renderFlash(){
+    const words = WORDS[currentItem.name] || [];
+    const w = words[currentIdx] || {};
+    document.getElementById('dCount').textContent = `${currentIdx+1} / ${words.length}`;
+    document.getElementById('flashWord').textContent = w.en || '—';
+    document.getElementById('flashMeta').textContent = `${w.ipa || ''} · ${w.pos || ''}`;
+    document.getElementById('flashGloss').textContent = w.gloss || '';
+    const svg = document.getElementById('flashStarSvg');
+    svg.querySelector('path').setAttribute('fill', starred.has(w.en) ? currentPalette.fg : 'none');
+    document.getElementById('navPrev').disabled = currentIdx === 0;
+    document.getElementById('navNext').disabled = currentIdx >= words.length - 1;
+    document.getElementById('navPrev').style.opacity = currentIdx === 0 ? .5 : 1;
+    document.getElementById('navNext').style.opacity = currentIdx >= words.length-1 ? .5 : 1;
+  }
+  document.getElementById('navPrev').addEventListener('click', () => {
+    if (currentIdx > 0){ currentIdx--; renderFlash(); H.tap(); }
+  });
+  document.getElementById('navNext').addEventListener('click', () => {
+    const words = WORDS[currentItem.name] || [];
+    if (currentIdx < words.length-1){ currentIdx++; renderFlash(); H.tap(); }
+  });
+  document.getElementById('flashStar').addEventListener('click', () => {
+    const words = WORDS[currentItem.name] || [];
+    const w = words[currentIdx]; if (!w) return;
+    if (starred.has(w.en)) starred.delete(w.en); else starred.add(w.en);
+    cloud.set('lexa.starred', JSON.stringify([...starred]));
+    renderFlash();
+    document.getElementById('sStars').textContent = starred.size;
+    H.light();
+  });
+  document.getElementById('flashSound').addEventListener('click', () => {
+    const words = WORDS[currentItem.name] || [];
+    const w = words[currentIdx]; if (!w) return;
+    try { const u = new SpeechSynthesisUtterance(w.en); u.lang='en-US'; speechSynthesis.speak(u); H.tap(); } catch {}
+  });
+  document.getElementById('detailMore').addEventListener('click', () => {
+    H.tap();
+    tg?.showPopup?.({
+      title: currentItem?.name || 'Collection',
+      message:'Manage this collection',
+      buttons:[
+        {id:'share',type:'default',text:'Share'},
+        {id:'reset',type:'default',text:'Reset progress'},
+        {id:'cancel',type:'cancel'},
+      ]
+    }, id => {
+      if (id === 'share' && tg?.switchInlineQuery)
+        tg.switchInlineQuery(`I'm learning "${currentItem.name}" on lexa.`, ['users','groups']);
+      if (id === 'reset'){ currentItem.progress = 0; document.getElementById('dProgressFill').style.width='0%'; document.getElementById('dProgressTxt').textContent='0%'; renderCards(); H.ok(); }
+    });
+  });
+
+  // ---------- Tab switching ----------
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => {
+      const tab = t.dataset.tab;
+      document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x===t));
+      document.querySelectorAll('.tab-view').forEach(v => v.classList.toggle('active', v.id===tab));
+      H.tap();
+      if (tab === 'vocab') renderVocab();
+      if (tab === 'library') renderLibrary();
+      if (tab === 'profile') renderProfile();
+    });
+  });
+
+  // ---------- Vocab list ----------
+  function renderVocab(){
+    const all = [];
+    COLLECTIONS.forEach((c,i) => {
+      const words = WORDS[c.name] || [];
+      words.forEach(w => all.push({...w, collection:c.name, palette: PALETTE[i%PALETTE.length]}));
+    });
+    document.getElementById('vocList').innerHTML = all.map(w => `
+      <div class="voc-item">
+        <div>
+          <div class="voc-en">${w.en}</div>
+          <div class="voc-ipa">${w.ipa} · ${w.pos}</div>
+          <div class="voc-gloss">${w.gloss}</div>
+        </div>
+        <span class="pill" style="background:${w.palette.bg};color:${w.palette.fg}">${w.collection}</span>
+      </div>
+    `).join('');
+  }
+
+  // ---------- Library ----------
+  function renderLibrary(){
+    const packs = [
+      { name:'Business',  sub:'120 words · Intermediate', p:PALETTE[2] },
+      { name:'Science',   sub:'180 words · Advanced',     p:PALETTE[5] },
+      { name:'Idioms',    sub:'60 expressions',           p:PALETTE[4] },
+      { name:'Academic',  sub:'200 words · Advanced',     p:PALETTE[0] },
+      { name:'Phrasals',  sub:'95 verbs',                 p:PALETTE[1] },
+      { name:'Sports',    sub:'75 words',                 p:PALETTE[3] },
+    ];
+    document.getElementById('libGrid').innerHTML = packs.map(p => `
+      <div class="libcard" style="background:${p.p.bg};color:${p.p.fg}">
+        <h4>${p.name}</h4>
+        <div class="sub">${p.sub}</div>
+      </div>
+    `).join('');
+  }
+
+  // ---------- Chat ----------
+  const chatWrap = document.getElementById('chatWrap');
+  const chatInput = document.getElementById('chatInput');
+  function sendChat(){
+    const v = chatInput.value.trim(); if (!v) return;
+    chatWrap.insertAdjacentHTML('beforeend', `<div class="bubble me">${escapeHtml(v)}</div>`);
+    chatInput.value = ''; H.light();
+    setTimeout(() => {
+      const replies = [
+        `"${v.split(' ')[0] || 'That'}" is often paired with a preposition. Want an example sentence?`,
+        `Let me quiz you — give me a synonym.`,
+        `Try it in a sentence about your weekend.`,
+      ];
+      chatWrap.insertAdjacentHTML('beforeend', `<div class="bubble ai">${replies[Math.floor(Math.random()*replies.length)]}</div>`);
+      window.scrollTo(0, document.body.scrollHeight);
+    }, 500);
+  }
+  document.getElementById('chatSend').addEventListener('click', sendChat);
+  chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
+  function escapeHtml(s){ return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+  // ---------- Profile ----------
+  function renderProfile(){
+    const u = tg?.initDataUnsafe?.user;
+    const name = u?.first_name || 'Learner';
+    document.getElementById('pname').textContent = `${name}'s lexa.`;
+    const av = document.getElementById('avatar');
+    if (u?.photo_url) av.innerHTML = `<img src="${u.photo_url}" alt="">`;
+    else av.textContent = name[0].toUpperCase();
+    const total = COLLECTIONS.reduce((s,c)=>s+c.words,0);
+    document.getElementById('sWords').textContent = total;
+    document.getElementById('sStars').textContent = starred.size;
+  }
+
+  document.getElementById('proRow').addEventListener('click', async () => {
+    H.light();
+    try {
+      const r = await fetch('/api/invoice', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ title:'lexa. Pro', description:'Unlimited collections, AI coach, offline packs', payload:`lexa_pro_${Date.now()}`, amount:150 })
+      });
+      const d = await r.json();
+      if (d?.ok && d.result){
+        tg?.openInvoice?.(d.result, status => {
+          if (status === 'paid'){ H.ok(); cloud.set('lexa.pro','1'); tg?.showAlert?.('lexa. Pro unlocked.'); }
+          else if (status === 'failed') H.err();
+        });
+      } else tg?.showAlert?.('Could not create invoice.');
+    } catch { tg?.showAlert?.('Network error.'); }
+  });
+  document.getElementById('shareRow').addEventListener('click', () => {
+    H.tap();
+    const total = COLLECTIONS.reduce((s,c)=>s+c.words,0);
+    const text = `I'm learning ${total} English words on lexa.`;
+    if (has('7.8') && tg?.shareToStory) tg.shareToStory('https://goldberg2-habits.vercel.app/og.png', { text });
+    else if (tg?.switchInlineQuery) tg.switchInlineQuery(text, ['users','groups']);
+  });
+  document.getElementById('remindRow').addEventListener('click', () => {
+    H.tap();
+    tg?.requestWriteAccess?.(granted => {
+      document.getElementById('remindVal').textContent = granted ? 'Daily 9:00' : 'Off';
+    });
+  });
+
+  // ---------- New collection sheet ----------
+  const sheet = document.getElementById('sheet');
+  const backdrop = document.getElementById('backdrop');
+  const swatchesEl = document.getElementById('swatches');
+  let pickedIdx = 0;
+  swatchesEl.innerHTML = PALETTE.map((p,i) => `<span class="sw ${i===0?'sel':''}" data-i="${i}" style="background:${p.bg}"></span>`).join('');
+  swatchesEl.addEventListener('click', e => {
+    const sw = e.target.closest('.sw'); if (!sw) return;
+    pickedIdx = Number(sw.dataset.i);
+    swatchesEl.querySelectorAll('.sw').forEach(x => x.classList.toggle('sel', x===sw));
+    H.tap();
+  });
+  document.getElementById('addBtn').addEventListener('click', () => { sheet.classList.add('open'); backdrop.classList.add('on'); H.light(); });
+  backdrop.addEventListener('click', () => { sheet.classList.remove('open'); backdrop.classList.remove('on'); });
+  document.getElementById('saveCollection').addEventListener('click', () => {
+    const name = document.getElementById('newName').value.trim();
+    const level = document.getElementById('newLevel').value;
+    if (!name){ H.err(); return; }
+    COLLECTIONS.unshift({ name, level, words: 20, progress: 0 });
+    WORDS[name] = WORDS['Daily life'];
+    renderCards();
+    sheet.classList.remove('open'); backdrop.classList.remove('on');
+    document.getElementById('newName').value = '';
+    H.ok();
+  });
+
+  // ---------- Boot ----------
+  (async () => {
+    const raw = await cloud.get('lexa.starred');
+    try { starred = new Set(JSON.parse(raw || '[]')); } catch {}
+    renderProfile();
+  })();
 </script>
-</body></html>
+</body>
+</html>

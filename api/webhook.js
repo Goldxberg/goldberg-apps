@@ -1,7 +1,7 @@
 // Telegram Bot webhook — @Goldberg2bot
 const TOKEN = process.env.BOT_TOKEN;
 const APP_URL = process.env.APP_URL || 'https://goldberg2-habits.vercel.app';
-const LEXA_URL = `${APP_URL}/v/lexa`;
+const LEXA_URL = APP_URL;
 const TG = `https://api.telegram.org/bot${TOKEN}`;
 
 const tg = (method, body) =>
