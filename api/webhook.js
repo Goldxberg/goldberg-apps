@@ -1,6 +1,7 @@
-// Telegram Bot webhook — handles /start, web_app_data (sendData), Stars payments
+// Telegram Bot webhook — @Goldberg2bot
 const TOKEN = process.env.BOT_TOKEN;
 const APP_URL = process.env.APP_URL || 'https://goldberg2-habits.vercel.app';
+const LEXA_URL = `${APP_URL}/v/lexa`;
 const TG = `https://api.telegram.org/bot${TOKEN}`;
 
 const tg = (method, body) =>
@@ -14,60 +15,66 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(200).json({ ok: true });
   const u = req.body || {};
 
-  // /start, /help
   if (u.message?.text) {
     const chat_id = u.message.chat.id;
-    const text = u.message.text.split(' ')[0];
-    if (text === '/start' || text === '/brain') {
+    const cmd = u.message.text.split(' ')[0];
+
+    if (cmd === '/start' || cmd === '/lexa' || cmd === '/learn') {
       await tg('sendMessage', {
         chat_id,
-        text: '🧠 *Your Brain*\n\nA gentle, ADHD‑first focus companion. Tap below to open.',
+        text: '📚 *lexa.*\n\nA vocabulary companion. Tap below to open.',
         parse_mode: 'Markdown',
         reply_markup: {
-          inline_keyboard: [[{ text: '🧠 Open Brain', web_app: { url: APP_URL } }]]
+          inline_keyboard: [[{ text: '📚 Open lexa.', web_app: { url: LEXA_URL } }]]
         }
       });
-    } else if (text === '/pro') {
-      // Create Stars invoice and send as button
+    } else if (cmd === '/gallery') {
+      await tg('sendMessage', {
+        chat_id,
+        text: '🎨 *App gallery*\n\nAll versions preserved. Pick any design.',
+        parse_mode: 'Markdown',
+        reply_markup: {
+          inline_keyboard: [[{ text: '🎨 Open gallery', web_app: { url: APP_URL } }]]
+        }
+      });
+    } else if (cmd === '/pro') {
       const inv = await tg('createInvoiceLink', {
-        title: 'Brain Pro',
-        description: 'Unlimited scenarios, sleep soundscapes, biometric journal',
-        payload: `pro_${u.message.from.id}_${Date.now()}`,
+        title: 'lexa. Pro',
+        description: 'Unlimited collections, AI coach, offline packs',
+        payload: `lexa_pro_${u.message.from.id}_${Date.now()}`,
         currency: 'XTR',
-        prices: [{ label: 'Brain Pro (lifetime)', amount: 150 }]
+        prices: [{ label: 'lexa. Pro (lifetime)', amount: 150 }]
       });
       if (inv?.ok) {
         await tg('sendMessage', {
           chat_id,
-          text: 'Unlock Brain Pro — 150 ⭐',
+          text: 'Unlock lexa. Pro — 150 ⭐',
           reply_markup: { inline_keyboard: [[{ text: '⭐ Pay 150 Stars', url: inv.result }]] }
         });
       }
     }
   }
 
-  // Mini app sendData (session log)
   if (u.message?.web_app_data) {
     const chat_id = u.message.chat.id;
     try {
       const d = JSON.parse(u.message.web_app_data.data || '{}');
-      if (d.event === 'session_complete') {
+      if (d.event === 'collection_complete') {
+        await tg('sendMessage', {
+          chat_id,
+          text: `✅ *${d.collection}* — ${d.words} words learned.\n_Logged to your vocabulary._`,
+          parse_mode: 'Markdown'
+        });
+      } else if (d.event === 'session_complete') {
         const mins = Math.round((d.duration || 0) / 60);
         await tg('sendMessage', {
           chat_id,
-          text: `✅ *${d.mode || 'Focus'}* session · ${mins} min\n_Logged to your brain._`,
-          parse_mode: 'Markdown'
-        });
-      } else if (d.event === 'journal') {
-        await tg('sendMessage', {
-          chat_id,
-          text: `📓 Journal saved (${(d.words || 0)} words).`
+          text: `✅ ${d.mode || 'Session'} · ${mins} min`
         });
       }
     } catch {}
   }
 
-  // Stars payment pre-checkout (must answer within 10s)
   if (u.pre_checkout_query) {
     await tg('answerPreCheckoutQuery', {
       pre_checkout_query_id: u.pre_checkout_query.id,
@@ -75,25 +82,16 @@ export default async function handler(req, res) {
     });
   }
 
-  // Successful payment
   if (u.message?.successful_payment) {
     const chat_id = u.message.chat.id;
     await tg('sendMessage', {
       chat_id,
-      text: '⭐ *Brain Pro unlocked.* Sleep soundscapes + unlimited scenarios are yours.\n\nOpen the app to use them.',
+      text: '⭐ *lexa. Pro unlocked.* Unlimited collections + AI coach are yours.',
       parse_mode: 'Markdown',
       reply_markup: {
-        inline_keyboard: [[{ text: '🧠 Open Brain', web_app: { url: APP_URL } }]]
+        inline_keyboard: [[{ text: '📚 Open lexa.', web_app: { url: LEXA_URL } }]]
       }
     });
-    // Set an emoji status on the user for 24h (v8+)
-    try {
-      await tg('setUserEmojiStatus', {
-        user_id: u.message.from.id,
-        emoji_status_custom_emoji_id: '5368324170671202286',
-        emoji_status_expiration_date: Math.floor(Date.now() / 1000) + 86400
-      });
-    } catch {}
   }
 
   res.status(200).json({ ok: true });
