@@ -20,15 +20,15 @@ export default async function handler(req, res) {
     const first = u.message.from?.first_name || 'друг';
     const cmd = u.message.text.split(' ')[0];
 
-    if (cmd === '/start' || cmd === '/hebrew' || cmd === '/ivrit' || cmd === '/learn') {
+    if (cmd === '/start' || cmd === '/hebrew' || cmd === '/ivrit' || cmd === '/learn' || cmd === '/talk') {
       await tg('sendMessage', {
         chat_id,
-        text: `שָׁלוֹם, ${first}!\n\n*Иврит · для русскоязычных*\n\nГоворение · Аудирование · Чтение · Грамматика · Алефбет.\nA1 — с нуля до уверенных фраз.`,
+        text: `שָׁלוֹם, ${first}!\n\n*Иврит · живой разговор*\n\nНажмите микрофон — говорите свободно на русском или иврите.\nИИ отвечает живым ивритом с переводом, транслитерацией и подсказкой.\n\nБлоб реагирует на ваш голос. Уровень A1–A2.`,
         parse_mode: 'Markdown',
         reply_markup: {
           inline_keyboard: [
-            [{ text: '🇮🇱 Открыть Иврит', web_app: { url: HEBREW_URL } }],
-            [{ text: '⭐ Иврит PRO (150 ⭐)', callback_data: 'pro' }, { text: '👥 Позвать друга', switch_inline_query: `Учу иврит через @Goldberg2bot — присоединяйся!` }]
+            [{ text: '🗣 Начать разговор', web_app: { url: HEBREW_URL } }],
+            [{ text: '⭐ PRO (безлимит · 150 ⭐)', callback_data: 'pro' }, { text: '👥 Позвать друга', switch_inline_query: `Говорю на иврите с ИИ через @Goldberg2bot — присоединяйся!` }]
           ]
         }
       });
